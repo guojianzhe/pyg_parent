@@ -24,6 +24,7 @@
         <module>web_user</module>
         <module>solr_util</module>
         <module>common</module>
+        <module>../dubbo-service</module>
     </modules>
 
     <properties>
@@ -48,6 +49,8 @@
         <solrj.version>4.10.3</solrj.version>
         <ik.version>2012_u6</ik.version>
     </properties>
+
+
 
     <!--依赖管理:作用不是让所有的子项目依赖这里的配置,不是配置jar包的依赖的关系,而是配置锁定的jar-->
     <dependencyManagement>
