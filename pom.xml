@@ -24,7 +24,6 @@
         <module>web_user</module>
         <module>solr_util</module>
         <module>common</module>
-        <module>../dubbo-service</module>
     </modules>
 
     <properties>
