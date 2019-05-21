@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 规格管理
  */
@@ -76,6 +79,13 @@ public class SpecController {
             e.printStackTrace();
             return new Result(false,"删除失败");
         }
+
+    }
+
+    @RequestMapping("/selectOptionList")
+    public List<Map<Integer,String>> selectOptionList(){
+
+        return specificationService.selectOptionList();
 
     }
 

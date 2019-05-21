@@ -4,6 +4,9 @@ import cn.itcast.core.pojo.entity.PageResult;
 import cn.itcast.core.pojo.entity.SpecEntity;
 import cn.itcast.core.pojo.specification.Specification;
 
+import java.util.List;
+import java.util.Map;
+
 public interface SpecificationService {
 
 
@@ -16,4 +19,6 @@ public interface SpecificationService {
     void update(SpecEntity specEntity);
 
     void delete(long[] ids);
+
+    List<Map<Integer,String>> selectOptionList();
 }

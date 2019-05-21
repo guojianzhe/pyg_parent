@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SpecificationServiceImpl implements SpecificationService {
@@ -135,5 +136,10 @@ public class SpecificationServiceImpl implements SpecificationService {
             }
         }
 
+    }
+
+    @Override
+    public List<Map<Integer, String>> selectOptionList() {
+        return specificationDao.selectOptionList();
     }
 }

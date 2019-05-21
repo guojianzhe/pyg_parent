@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -60,6 +61,20 @@ public class TestBrandDao {
         for (Brand brand : brands) {
             System.out.println("===="+brand);
         }
+
+    }
+
+
+    @Test
+    public void testSelectOptionList(){
+
+
+        List<Map> maps = brandDao.selectOptionList();
+
+        for (Map map : maps) {
+            System.out.println(map);
+        }
+
 
     }
 }

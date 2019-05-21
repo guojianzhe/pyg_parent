@@ -5,7 +5,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
-	
+
+
+	<!--配置放行的资源-->
 	<http pattern="/login.html" security="none"/>
 	<http pattern="/css/**" security="none"/>
 	<http pattern="/img/**" security="none"/>
@@ -34,7 +36,7 @@
 		<!-- 不使用csrf的校验 -->
 		<csrf disabled="true"/>
 		
-		<!-- 配置框架页面不拦截 -->
+		<!-- 配置框架页面不拦截,这个配置是设置html页面中可以使用html的ifframe标签和frame标签 -->
 		<headers>
 			<frame-options policy="SAMEORIGIN"/>
 		</headers>

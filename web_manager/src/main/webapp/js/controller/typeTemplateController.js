@@ -84,6 +84,7 @@ app.controller('typeTemplateController' ,function($scope,$controller,brandServic
 	}
     
 	$scope.brandList={data:[]}
+    // $scope.brandList={data:[{id:1,text:'联想'},{id:2,text:'华为'},{id:3,text:'小米'}]};//品牌列表
 	// 查询关联的品牌信息:
 	$scope.findBrandList = function(){
 		brandService.selectOptionList().success(function(response){
