@@ -8,7 +8,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 						http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
 						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
-	
+	<!--静态资源放行,没有权限也可以访问-->
 	<http pattern="/*.html" security="none"/>
 	<http pattern="/css/**" security="none"/>
 	<http pattern="/img/**" security="none"/>
@@ -51,7 +51,7 @@
 	<authentication-manager>
 		<!-- 认证的提供者 -->
 		<authentication-provider user-service-ref="userDetailService">
-			<password-encoder ref="passwordEncoder"></password-encoder>	
+			<!--<password-encoder ref="passwordEncoder"></password-encoder>	-->
 		</authentication-provider>
 	</authentication-manager>
 		

@@ -10,4 +10,6 @@ public interface SellerService {
     PageResult findPage(Seller seller, Integer page, Integer rows);
 
     Seller findOne(String id);
+
+    void updateStatus(String sellerId, String status);
 }

@@ -1,6 +1,7 @@
 package cn.itcast.core.controller;
 
 import cn.itcast.core.pojo.entity.PageResult;
+import cn.itcast.core.pojo.entity.Result;
 import cn.itcast.core.pojo.seller.Seller;
 import cn.itcast.core.service.SellerService;
 import com.alibaba.dubbo.config.annotation.Reference;
@@ -28,6 +29,19 @@ public class SellerController {
 
         return sellerService.findOne(id);
 
+    }
+
+
+    @RequestMapping("/updateStatus")
+    public Result updateStatus(String sellerId,String status){
+
+        try {
+            sellerService.updateStatus(sellerId,status);
+            return new Result(true,"状态修改成功!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"状态修改失败!");
+        }
     }
 
 }

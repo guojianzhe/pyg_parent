@@ -62,4 +62,15 @@ public class SellerServiceImpl implements SellerService {
     public Seller findOne(String id) {
         return sellerDao.selectByPrimaryKey(id);
     }
+
+    @Override
+    public void updateStatus(String sellerId, String status) {
+        Seller seller = new Seller();
+
+        seller.setSellerId(sellerId);
+        seller.setStatus(status);
+
+        sellerDao.updateByPrimaryKeySelective(seller);
+
+    }
 }
