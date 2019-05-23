@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/typeTemplate")
 public class TemplateController {
@@ -24,6 +27,12 @@ public class TemplateController {
 
         return  typeTemplateService.findOne(id);
 
+    }
+
+    @RequestMapping("/findBySpecList")
+    public List<Map> findBySpecList(Long id){
+
+        return typeTemplateService.findBySpecList(id);
     }
 
 
