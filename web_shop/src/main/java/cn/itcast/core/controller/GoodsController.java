@@ -43,4 +43,42 @@ public class GoodsController {
         }
 
     }
+    @RequestMapping("/findOne")
+    public GoodsEntity findOne(Long id){
+
+        return goodService.findOne(id);
+
+    }
+    @RequestMapping("/update")
+    public Result update(@RequestBody GoodsEntity goodsEntity){
+
+
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            //获取商品的所有者
+            String sellerId = goodsEntity.getGoods().getSellerId();
+            if(!username.equals(sellerId)){
+                return new Result(false,"你没有权限修改此商品!");
+            }
+            goodService.update(goodsEntity);
+
+            return new Result(true,"修改成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"修改失败");
+        }
+
+    }
+    @RequestMapping("/delete")
+    public Result delete(Long[] ids){
+        try {
+
+            goodService.delete(ids);
+            return new Result(true,"删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,"删除失败");
+        }
+    }
+
 }

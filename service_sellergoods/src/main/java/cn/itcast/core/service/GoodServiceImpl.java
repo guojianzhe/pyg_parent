@@ -10,14 +10,14 @@ import cn.itcast.core.pojo.entity.GoodsEntity;
 import cn.itcast.core.pojo.entity.PageResult;
 import cn.itcast.core.pojo.good.Brand;
 import cn.itcast.core.pojo.good.Goods;
+import cn.itcast.core.pojo.good.GoodsDesc;
 import cn.itcast.core.pojo.good.GoodsQuery;
 import cn.itcast.core.pojo.item.Item;
 import cn.itcast.core.pojo.item.ItemCat;
+import cn.itcast.core.pojo.item.ItemQuery;
 import cn.itcast.core.pojo.seller.Seller;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,10 +91,133 @@ public class GoodServiceImpl implements GoodService {
         return new PageResult(goodsList.getTotal(),goodsList.getResult());
     }
 
+    @Override
+    public GoodsEntity findOne(Long id) {
+        //根据商品id查询商品对象
+        Goods goods = goodsDao.selectByPrimaryKey(id);
+        //根据商品id查询商品详情对象
+        GoodsDesc goodsDesc =  goodsDescDao.selectByPrimaryKey(id);
+        //根据商品id查询库存集合对象
+        ItemQuery query = new ItemQuery();
+        query.createCriteria().andGoodsIdEqualTo(id);
+
+        List<Item> items = itemDao.selectByExample(query);
+        //4.将以上查询到的结果对象封装到GoodsEntity中返回
+
+        GoodsEntity entity = new GoodsEntity();
+        entity.setGoods(goods);
+        entity.setGoodsDesc(goodsDesc);
+        entity.setItemList(items);
 
 
 
+        return entity;
+    }
 
+    @Override
+    public void update(GoodsEntity goodsEntity) {
+        //1.修改商品对象
+        goodsDao.updateByPrimaryKeySelective(goodsEntity.getGoods());
+        //2.修改商品详情对象
+        goodsDescDao.updateByPrimaryKeySelective(goodsEntity.getGoodsDesc());
+        //3.根据商品id删除对应的库存集合数据
+
+        ItemQuery query = new ItemQuery();
+        query.createCriteria().andGoodsIdEqualTo(goodsEntity.getGoods().getId());
+
+        itemDao.deleteByExample(query);
+        //4.添加库存集合数据
+        insertItem(goodsEntity);
+
+
+
+    }
+
+    @Override
+    public void delete(Long[] ids) {
+        if(ids!=null){
+            for (Long id : ids) {
+                Goods goods = new Goods();
+                goods.setId(id);
+                goods.setIsDelete("1");
+                goodsDao.updateByPrimaryKeySelective(goods);
+            }
+
+        }
+    }
+
+    @Override
+    public void updateStatus(Long[] ids, String status) {
+        if(ids!=null){
+            for (Long id : ids) {
+                //1.根据商品id修改商品对象状态码
+                Goods goods = new Goods();
+                goods.setId(id);
+                goods.setAuditStatus(status);
+                goodsDao.updateByPrimaryKeySelective(goods);
+
+                //根据商品id修改库存状态码
+                Item item = new Item();
+                item.setStatus(status);
+
+                ItemQuery query = new ItemQuery();
+
+                query.createCriteria().andGoodsIdEqualTo(id);
+                itemDao.updateByExampleSelective(item,query);
+
+            }
+        }
+    }
+
+    /**
+     * 保存库存数据
+     */
+    private void insertItem(GoodsEntity goodsEntity){
+        //是否勾选规格单选框
+        if("1".equals(goodsEntity.getGoods().getIsEnableSpec())){
+
+            List<Item> itemList = goodsEntity.getItemList();
+            if(itemList!=null){
+                for (Item item : itemList) {
+                    //库存标题,由商品名+规格组成具体的库存标题,供消费者搜索使用,可以搜索的更精细
+                    String title = goodsEntity.getGoods().getGoodsName();
+                    //从库存对象中获取前端传入的json格式规格的字符串,例如{"机身内存":"16G","网络":"联通3G"}
+                    String specJsonStr = item.getSpec();
+
+                    //将Json对象转换成Map对象
+                    Map specMap = JSON.parseObject(specJsonStr, Map.class);
+                    Collection values = specMap.values();
+                    for (Object value : values) {
+                        title+=" "+value;
+                    }
+
+
+                    item.setTitle(title);
+
+                    setItemValue(goodsEntity, item);
+
+                    itemDao.insertSelective(item);
+                }
+            }
+
+        }else{
+
+            Item item = new Item();
+            //价格
+            item.setPrice(new BigDecimal("9999999999"));
+            //库存量
+            item.setNum(0);
+            //初始化规格
+            item.setSpec("{}");
+            //标题
+            item.setTitle(goodsEntity.getGoods().getGoodsName());
+            //
+            setItemValue(goodsEntity,item);
+
+            itemDao.insertSelective(item);
+        }
+
+    }
 
     private Item setItemValue(GoodsEntity goodsEntity,Item item){
 
@@ -136,53 +259,5 @@ public class GoodServiceImpl implements GoodService {
     }
 
 
-    /**
-     * 保存库存数据
-     */
-    private void insertItem(GoodsEntity goodsEntity){
-        //是否勾选规格单选框
-        if("1".equals(goodsEntity.getGoods().getIsEnableSpec())){
 
-            List<Item> itemList = goodsEntity.getItemList();
-            if(itemList!=null){
-                for (Item item : itemList) {
-                    //库存标题,由商品名+规格组成具体的库存标题,供消费者搜索使用,可以搜索的更精细
-                    String title = goodsEntity.getGoods().getGoodsName();
-                    //从库存对象中获取前端传入的json格式规格的字符串,例如{"机身内存":"16G","网络":"联通3G"}
-                    String specJsonStr = item.getSpec();
-
-                    //将Json对象转换成Map对象
-                    Map specMap = JSON.parseObject(specJsonStr, Map.class);
-                    Collection values = specMap.values();
-                    for (Object value : values) {
-                        title+=" "+value;
-                    }
-
-
-                    item.setTitle(title);
-
-                   setItemValue(goodsEntity, item);
-
-                    itemDao.insertSelective(item);
-                }
-            }
-
-        }else{
-
-            Item item = new Item();
-            //价格
-            item.setPrice(new BigDecimal("9999999999"));
-            //库存量
-            item.setNum(0);
-            //初始化规格
-            item.setSpec("{}");
-            //标题
-            item.setTitle(goodsEntity.getGoods().getGoodsName());
-            //
-            setItemValue(goodsEntity,item);
-
-            itemDao.insertSelective(item);
-        }
-
-    }
 }
