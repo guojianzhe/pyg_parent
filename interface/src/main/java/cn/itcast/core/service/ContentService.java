@@ -20,4 +20,6 @@ public interface ContentService {
     PageResult findPage(Content category, Integer page, Integer rows);
 
     List<Content> findByCategoryId(Long categoryId);
+
+    List<Content> findByCategoryIdFromRedis(Long categoryId);
 }
