@@ -23,6 +23,21 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public Map<String, Object> search(Map paramMap) {
 
+        //1.根据关键字,分页,高亮,过滤,排序查询
+        Map<String, Object> stringObjectMap = highlightSearch(paramMap);
+        //2.根据查询参数,获取对应的分类结果集,由于分类重复,所以需要分组去重
+
+
+
+        return stringObjectMap;
+    }
+
+    /**
+     * 根据关键字,分页,高亮,过滤,排序查询,并且将查询结果返回
+     * @param paramMap
+     * @return
+     */
+    private Map<String,Object> highlightSearch(Map paramMap){
         //获取查询关键字
         String keywords = String.valueOf(paramMap.get("keywords"));
         //当前页面
@@ -61,7 +76,7 @@ public class SearchServiceImpl implements SearchService {
         highlightOptions.setSimplePostfix("</em>");
         //将高亮选项加入到查询对象中
         query.setHighlightOptions(highlightOptions);
-        
+
 
         //普通查询
         //ScoredPage<Item> items = solrTemplate.queryForPage(query, Item.class);
