@@ -13,7 +13,7 @@ public interface GoodService {
 
     void update(GoodsEntity goodsEntity);
 
-    void delete(Long[] ids);
+    void delete(Long id);
 
-    void updateStatus(Long[] ids, String status);
+    void updateStatus(Long id, String status);
 }

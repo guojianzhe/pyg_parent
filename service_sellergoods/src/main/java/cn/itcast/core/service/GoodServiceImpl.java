@@ -134,39 +134,34 @@ public class GoodServiceImpl implements GoodService {
     }
 
     @Override
-    public void delete(Long[] ids) {
-        if(ids!=null){
-            for (Long id : ids) {
-                Goods goods = new Goods();
-                goods.setId(id);
-                goods.setIsDelete("1");
-                goodsDao.updateByPrimaryKeySelective(goods);
-            }
+    public void delete(Long id) {
 
-        }
+        Goods goods = new Goods();
+        goods.setId(id);
+        goods.setIsDelete("1");
+        goodsDao.updateByPrimaryKeySelective(goods);
+
     }
 
     @Override
-    public void updateStatus(Long[] ids, String status) {
-        if(ids!=null){
-            for (Long id : ids) {
-                //1.根据商品id修改商品对象状态码
-                Goods goods = new Goods();
-                goods.setId(id);
-                goods.setAuditStatus(status);
-                goodsDao.updateByPrimaryKeySelective(goods);
+    public void updateStatus(Long id, String status) {
 
-                //根据商品id修改库存状态码
-                Item item = new Item();
-                item.setStatus(status);
+        //1.根据商品id修改商品对象状态码
+        Goods goods = new Goods();
+        goods.setId(id);
+        goods.setAuditStatus(status);
+        goodsDao.updateByPrimaryKeySelective(goods);
 
-                ItemQuery query = new ItemQuery();
+        //根据商品id修改库存状态码
+        Item item = new Item();
+        item.setStatus(status);
 
-                query.createCriteria().andGoodsIdEqualTo(id);
-                itemDao.updateByExampleSelective(item,query);
+        ItemQuery query = new ItemQuery();
 
-            }
-        }
+        query.createCriteria().andGoodsIdEqualTo(id);
+        itemDao.updateByExampleSelective(item,query);
+
+
     }
 
     /**

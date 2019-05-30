@@ -7,11 +7,13 @@ import cn.itcast.core.pojo.specification.SpecificationOption;
 import cn.itcast.core.pojo.specification.SpecificationOptionQuery;
 import cn.itcast.core.pojo.template.TypeTemplate;
 import cn.itcast.core.pojo.template.TypeTemplateQuery;
+import cn.itcast.core.util.Constants;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -25,9 +27,37 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
     @Autowired
     private SpecificationOptionDao optionDao;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public PageResult findPage(TypeTemplate typeTemplate, Integer page, Integer rows) {
+        //在查询的时候将模板放入redis中  这里为了简便  实际上应该在增删改的时候放到redis中
+        /**
+         * redis中缓存模板所有数据
+         */
+        List<TypeTemplate> templatesAll = typeTemplateDao.selectByExample(null);
 
+        for (TypeTemplate template : templatesAll) {
+            //模板id作为key,品牌集合作为value缓存到redis中
+            String brandIds = template.getBrandIds();
+            //将json转换为集合
+            List<Map> brandList = JSON.parseArray(brandIds, Map.class);
+            redisTemplate.boundHashOps(Constants.BRAND_LIST_REDIS).put(template.getId(),brandList);
+            System.out.println("品牌缓存到redis");
+            //模板id作为key,规格集合作为value缓存入redis中
+
+            List<Map> specList = findBySpecList(template.getId());
+
+            redisTemplate.boundHashOps(Constants.SPEC_LIST_REDIS).put(template.getId(),specList);
+
+            System.out.println("模板规格缓存到redis");
+        }
+
+
+        /**
+         * 模板分页查询
+         */
         PageHelper.startPage(page,rows);
 
         TypeTemplateQuery query = new TypeTemplateQuery();
@@ -96,8 +126,6 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
                 map.put("options",options);
             }
         }
-
-
         return maps;
     }
 }
