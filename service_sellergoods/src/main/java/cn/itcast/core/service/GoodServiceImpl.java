@@ -20,10 +20,17 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import java.math.BigDecimal;
 import java.rmi.MarshalledObject;
 import java.util.*;
@@ -47,6 +54,12 @@ public class GoodServiceImpl implements GoodService {
 
     @Autowired
     private SellerDao sellerDao;
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    @Autowired
+    private ActiveMQTopic topicPageAndSolrDestination;
 
     @Override
     public void add(GoodsEntity goodsEntity) {
@@ -144,7 +157,10 @@ public class GoodServiceImpl implements GoodService {
     }
 
     @Override
-    public void updateStatus(Long id, String status) {
+    public void updateStatus(final Long id, String status) {
+        /**
+         * 1.根据商品id到数据库中将商品的上架状态改变
+         */
 
         //1.根据商品id修改商品对象状态码
         Goods goods = new Goods();
@@ -161,6 +177,20 @@ public class GoodServiceImpl implements GoodService {
         query.createCriteria().andGoodsIdEqualTo(id);
         itemDao.updateByExampleSelective(item,query);
 
+        /**
+         * 2.将商品id作为消息发送给消息服务器
+         */
+
+        if("1".equals(status)){
+            jmsTemplate.send(topicPageAndSolrDestination, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    TextMessage textMessage = session.createTextMessage(String.valueOf(id));
+                    return textMessage;
+                }
+            });
+
+        }
 
     }
 
