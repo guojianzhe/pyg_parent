@@ -3,9 +3,7 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xmlns:jms="http://www.springframework.org/schema/jms"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context.xsd">
+		http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
 
@@ -27,8 +25,8 @@
 	</bean>
 
 	<!-- 发布订阅模式, 商品导入索引库和生成静态页面 -->
-	<!--将商品上架所用的商品id发送到这个队列中-->
 	<bean id="topicPageAndSolrDestination" class="org.apache.activemq.command.ActiveMQTopic">
+		<!--将商品上架所用的商品id发送到这个队列中-->
 		<constructor-arg value="pinyougou_topic_page_solr"/>
 	</bean>
 

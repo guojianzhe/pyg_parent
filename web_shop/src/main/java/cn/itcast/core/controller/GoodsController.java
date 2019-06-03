@@ -6,10 +6,7 @@ import cn.itcast.core.pojo.entity.PageResult;
 import cn.itcast.core.pojo.entity.Result;
 import cn.itcast.core.pojo.good.Goods;
 import cn.itcast.core.service.GoodService;
-import cn.itcast.core.service.SolrManagerService;
 import com.alibaba.dubbo.config.annotation.Reference;
-import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +19,8 @@ public class GoodsController {
     @Reference
     private GoodService goodService;
 
-    @Reference
-    private SolrManagerService solrManagerService;
+//    @Reference
+//    private SolrManagerService solrManagerService;
 
     @RequestMapping("/search")
     public PageResult search(@RequestBody Goods goods,Integer page,Integer rows){
@@ -86,7 +83,7 @@ public class GoodsController {
 
                     //2.根据商品id到solr索引库中删除对应数据
 
-                    solrManagerService.deleteItemFromSolr(id);
+//                    solrManagerService.deleteItemFromSolr(id);
                 }
             }
             return new Result(true,"删除成功");

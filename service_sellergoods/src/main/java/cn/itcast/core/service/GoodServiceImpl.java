@@ -20,6 +20,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
@@ -60,6 +61,9 @@ public class GoodServiceImpl implements GoodService {
 
     @Autowired
     private ActiveMQTopic topicPageAndSolrDestination;
+
+    @Autowired
+    private ActiveMQQueue queueSolrDeleteDestination;
 
     @Override
     public void add(GoodsEntity goodsEntity) {
@@ -147,12 +151,29 @@ public class GoodServiceImpl implements GoodService {
     }
 
     @Override
-    public void delete(Long id) {
-
+    public void delete(final Long id) {
+        /**
+         * 1.到数据库中对商品进行逻辑删除
+         */
         Goods goods = new Goods();
         goods.setId(id);
         goods.setIsDelete("1");
         goodsDao.updateByPrimaryKeySelective(goods);
+
+
+        /**
+         * 2.将商品id坐位消息发送给消息服务器
+         */
+
+        jmsTemplate.send(queueSolrDeleteDestination, new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+
+                TextMessage textMessage = session.createTextMessage(String.valueOf(id));
+
+                return textMessage;
+            }
+        });
 
     }
 
