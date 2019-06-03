@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JmsTemplate jmsTemplate;
-//
+
     @Autowired
     private ActiveMQQueue smsDestination;
 
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
         //1.生成一个随机的数字,作为验证码
         StringBuffer sb = new StringBuffer();
-        for (int i=0;i<7;i++){
+        for (int i=0;i<6;i++){
             int s = new Random().nextInt(10);
             sb.append(s);
         }

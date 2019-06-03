@@ -23,7 +23,7 @@
         <module>web_portal</module>
         <module>web_user</module>
         <module>solr_util</module>
-        <module>common</module>
+
     </modules>
 
     <properties>
