@@ -290,6 +290,8 @@ public class GoodServiceImpl implements GoodService {
         //卖家名称
         Seller seller = sellerDao.selectByPrimaryKey(goodsEntity.getGoods().getSellerId());
         item.setSeller(seller.getName());
+        //卖家id
+        item.setSellerId(goodsEntity.getGoods().getSellerId());
         //实例图片
         String itemImages = goodsEntity.getGoodsDesc().getItemImages();
 
