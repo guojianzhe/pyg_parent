@@ -109,9 +109,44 @@ public class OrderServiceImpl implements OrderService {
             payLog.setTradeState("0");//支付状态
             payLog.setUserId(order.getUserId());//用户ID
             payLogDao.insertSelective(payLog);//插入到支付日志表
+            //TODO 9.使用当前登录用户名作为key,支付日志对象作为value存入redis中供支付使用
             redisTemplate.boundHashOps("payLog").put(order.getUserId(), payLog);//放入缓存
         }
-        redisTemplate.boundHashOps("cartList").delete(order.getUserId());
+        //TODO 10.根据当前登录的用户的用户名删除购物车
+        redisTemplate.boundHashOps(Constants.CART_LIST_REDIS).delete(order.getUserId());
+
+
+    }
+
+    @Override
+    public PayLog getPayLogByusername(String username) {
+
+        return (PayLog)redisTemplate.boundHashOps("payLog").get(username);
+    }
+
+    @Override
+    public void updatePayStatus(String username) {
+        //1.根据登录用户名,获取redis中的支付日志对象
+        PayLog payLog = (PayLog)redisTemplate.boundHashOps("payLog").get(username);
+        //2.根据支付日志对象,修改数据库中的支付状态
+        payLog.setTradeState("1");
+        payLog.setPayTime(new Date());
+        payLogDao.updateByPrimaryKeySelective(payLog);
+        //3.根据订单id修改订单表的支付状态
+        String orderListStr = payLog.getOrderList();
+        String[] split = orderListStr.split(",");
+        if(split!=null){
+            for (String orderId : split) {
+                Order order = new Order();
+                order.setOrderId(Long.parseLong(orderId));
+                order.setStatus("2");
+                orderDao.updateByPrimaryKeySelective(order);
+            }
+        }
+
+
+        //4.删除redis中这个用户的支付日志对象
+        redisTemplate.boundHashOps("payLog").delete(username);
 
 
     }
